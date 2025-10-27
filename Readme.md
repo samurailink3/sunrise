@@ -24,3 +24,10 @@ then wake the monitor and restart Sunshine.
 * `systemctl --user daemon-reload`
 * `systemctl --user enable sunrise`
 * `systemctl --user start sunrise`
+
+## How can I help?
+
+This is working for Debian Trixie + KDE, but I don't have the time to test
+_every_ desktop environment out there. If you want, feel free to add other
+working "wake monitor" commands in `sunrise.cfg.example`.
+
