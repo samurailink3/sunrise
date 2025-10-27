@@ -1,0 +1,16 @@
+# How often sunrise should check the sunshine log file
+SunriseCheckSeconds = 10
+# The log path sunrise will watch
+SunshineLogPath = "/home/your-username/.config/sunshine/sunshine.log"
+# The error sunrise will monitor for (pun-intended)
+MonitorIsOffLogLine = "Error: Couldn't find monitor [0]"
+# How long sunrise should wait after issuing the `wakeMonitorCommand`
+WakeMonitorSleepSeconds = 10
+# The command sunrise will use to kill existing sunshine processes
+StopSunshineCommand = "/usr/bin/killall sunshine"
+# The command sunrise will use to start a new sunshine process
+StartSunshineCommand = "/usr/bin/sunshine"
+
+# The command sunrise will run to wake up your monitor
+# Working on Debian Trixie with KDE:
+WakeMonitorCommand = "/usr/bin/qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.wakeup"

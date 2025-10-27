@@ -1,0 +1,16 @@
+[Unit]
+Description=Sunrise
+After=graphical-session.target
+BindsTo=graphical-session.target
+PartOf=graphical-session.target
+Requisite=graphical-session.target
+ConditionEnvironment=DISPLAY
+ConditionEnvironment=XAUTHORITY
+
+[Service]
+ExecStart=/opt/sunrise/sunrise
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

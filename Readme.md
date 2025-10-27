@@ -1,0 +1,26 @@
+# Sunrise
+
+A monitor-restart service written for Sunshine Linux Hosts!
+
+## What does this do?
+
+The great [Sunshine](https://app.lizardbyte.dev/Sunshine/) game stream
+application has a critical issue on Linux desktops: When the display sleeps,
+Sunshine doesn't wake it up and instead errors out (see [this GiHub discussion
+for more information](https://github.com/orgs/LizardByte/discussions/439)). This
+makes using Sunshine with Linux-on-the-Desktop a frustrating experience.
+
+Sunrise will monitor the Sunshine log file, watch for monitor-is-missing errors,
+then wake the monitor and restart Sunshine.
+
+## How do I use it?
+
+* Build sunrise with `go build`
+* Move `sunrise` to `/opt/sunrise/sunrise`
+* Copy `sunrise.cfg.example` to `/etc/sunrise/sunrise.cfg`
+* Edit `/etc/sunrise/sunrise.cfg` to your specifications (you'll likely need to
+  change the `SunshineLogPath` variable)
+* Copy `sunrise.service` to `$HOME/.config/systemd/user/sunrise.service`
+* `systemctl --user daemon-reload`
+* `systemctl --user enable sunrise`
+* `systemctl --user start sunrise`
