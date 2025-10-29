@@ -20,3 +20,9 @@ EnableSunshineRestart = true
 # The command sunrise will run to wake up your monitor
 # Working on Debian Trixie with KDE:
 WakeMonitorCommand = "/usr/bin/qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.wakeup"
+# Working on GNOME Wayland with ydotool configured
+# NOTE: As this is a mouse-wiggle wake-up, you do not need
+# to enable EnableSunshineRestart
+# Ref: https://github.com/samurailink3/sunrise/issues/1#issue-3559225159
+# Ref: https://github.com/ReimuNotMoe/ydotool
+# WakeMonitorCommand = "/usr/bin/ydotool mousemove --absolute 355 0"
