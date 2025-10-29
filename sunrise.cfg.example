@@ -11,6 +11,12 @@ StopSunshineCommand = "/usr/bin/killall sunshine"
 # The command sunrise will use to start a new sunshine process
 StartSunshineCommand = "/usr/bin/sunshine"
 
+# Controls whether or not sunrise should restart sunshine
+# after waiting for the monitor to wake up
+# NOTE: Unless you're waking the monitor by wiggling the mouse,
+# YOU LIKELY NEED THIS ENABLED.
+EnableSunshineRestart = true
+
 # The command sunrise will run to wake up your monitor
 # Working on Debian Trixie with KDE:
 WakeMonitorCommand = "/usr/bin/qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.wakeup"

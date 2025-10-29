@@ -23,6 +23,7 @@ type config struct {
 	StopSunshineCommand     string
 	StartSunshineCommand    string
 	WakeMonitorCommand      string
+	EnableSunshineRestart   bool
 }
 
 func main() {
@@ -52,7 +53,9 @@ func main() {
 				log.Println("Could not wake monitor:", err)
 			}
 			waitForMonitor()
-			err = restartSunshine()
+			if c.EnableSunshineRestart {
+				err = restartSunshine()
+			}
 			if err != nil {
 				log.Println("Could not restart sunshine:", err)
 			}
