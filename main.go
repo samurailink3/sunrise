@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -11,7 +13,14 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-var c config
+var (
+	c config
+
+	// Track the log file size and last handled error time so we only react to
+	// new Sunshine errors.
+	lastLogSize            int64
+	lastMonitorMissingTime time.Time
+)
 
 // config controls how sunrise functions. See `sunrise.cfg.example` for comments
 // on each item.
@@ -68,17 +77,63 @@ func main() {
 // monitor is off.
 func isMonitorMissing() (monitorIsMissing bool, err error) {
 	log.Println("Checking if monitor is missing according to Sunshine log")
-	logBytes, err := os.ReadFile(c.SunshineLogPath)
+	logInfo, err := os.Stat(c.SunshineLogPath)
 	if err != nil {
 		return false, err
 	}
 
-	if strings.Contains(string(logBytes), c.MonitorIsOffLogLine) {
-		log.Println("Monitor is missing")
+	if logInfo.Size() < lastLogSize {
+		// Sunshine rewrote the log, so the next matching line should trigger again.
+		log.Println("Sunshine log appears to have rotated; resetting monitor-missing tracking state")
+		resetMonitorTracking()
+	}
+
+	lastLogSize = logInfo.Size()
+
+	logFile, err := os.Open(c.SunshineLogPath)
+	if err != nil {
+		return false, err
+	}
+	defer logFile.Close()
+
+	var latestOccurrence time.Time
+
+	// Walk the log to find the newest monitor-missing entry and capture its timestamp.
+	scanner := bufio.NewScanner(logFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if !strings.Contains(line, c.MonitorIsOffLogLine) {
+			continue
+		}
+
+		entryTime, err := parseSunshineTimestamp(line)
+		if err != nil {
+			log.Printf("Unable to parse Sunshine log timestamp for line %q: %v", line, err)
+			continue
+		}
+
+		if entryTime.After(latestOccurrence) {
+			latestOccurrence = entryTime
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false, err
+	}
+
+	if latestOccurrence.IsZero() {
+		resetMonitorTracking()
+		log.Println("Monitor is not missing")
+		return false, nil
+	}
+
+	if lastMonitorMissingTime.IsZero() || latestOccurrence.After(lastMonitorMissingTime) {
+		lastMonitorMissingTime = latestOccurrence
+		log.Println("Monitor is missing; last Sunshine error at", latestOccurrence.Format(time.RFC3339Nano))
 		return true, nil
 	}
 
-	log.Println("Monitor is not missing")
+	log.Println("Monitor missing error already handled at", lastMonitorMissingTime.Format(time.RFC3339Nano))
 	return false, nil
 }
 
@@ -94,6 +149,26 @@ func wakeMonitor() (err error) {
 	}
 	log.Println("wakeMonitor command completed without errors")
 	return nil
+}
+
+func resetMonitorTracking() {
+	lastMonitorMissingTime = time.Time{}
+}
+
+func parseSunshineTimestamp(line string) (time.Time, error) {
+	// Sunshine timestamps appear as: [YYYY-MM-DD HH:MM:SS.mmm]
+	endIdx := strings.Index(line, "]")
+	if !strings.HasPrefix(line, "[") || endIdx == -1 {
+		return time.Time{}, fmt.Errorf("sunshine log line missing timestamp brackets")
+	}
+
+	timePortion := line[1:endIdx]
+	t, err := time.ParseInLocation("2006-01-02 15:04:05.000", timePortion, time.Local)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return t, nil
 }
 
 // waitForMonitor will sleep for a configured amount of seconds for the monitor
