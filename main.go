@@ -72,9 +72,9 @@ func main() {
 	}
 }
 
-// isMonitorMissing will search the current Sunshine log file (which is
-// re-created from scratch each time Sunshine starts). It returns `true` if the
-// monitor is off.
+// isMonitorMissing will search the current Sunshine log file for evidence that
+// a client tried to connect to Sunshine and found the monitor was off. It
+// returns `true` if the monitor is off.
 func isMonitorMissing() (monitorIsMissing bool, err error) {
 	log.Println("Checking if monitor is missing according to Sunshine log")
 	logInfo, err := os.Stat(c.SunshineLogPath)
@@ -151,10 +151,14 @@ func wakeMonitor() (err error) {
 	return nil
 }
 
+// resetMonitorTracking resets the in-memory timestamp to track the last
+// timestamp the monitor when missing.
 func resetMonitorTracking() {
 	lastMonitorMissingTime = time.Time{}
 }
 
+// parseSunshineTimestamp will obtain a Go-native timestamp out of the Sunshine
+// logs.
 func parseSunshineTimestamp(line string) (time.Time, error) {
 	// Sunshine timestamps appear as: [YYYY-MM-DD HH:MM:SS.mmm]
 	endIdx := strings.Index(line, "]")
@@ -179,9 +183,7 @@ func waitForMonitor() {
 }
 
 // restartSunshine will kill the existing sunshine process and start a new one.
-// This is necessary because waking the monitor up leaves sunshine in a weird
-// state where the server won't start. The easiest solution is to restart the
-// service.
+// This isn't necessary in most cases.
 func restartSunshine() (err error) {
 	stopSunshine()
 	err = startSunshine()

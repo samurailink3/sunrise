@@ -10,19 +10,14 @@ WakeMonitorSleepSeconds = 10
 StopSunshineCommand = "/usr/bin/killall sunshine"
 # The command sunrise will use to start a new sunshine process
 StartSunshineCommand = "/usr/bin/sunshine"
-
 # Controls whether or not sunrise should restart sunshine
-# after waiting for the monitor to wake up
-# NOTE: Unless you're waking the monitor by wiggling the mouse,
-# YOU LIKELY NEED THIS ENABLED.
-EnableSunshineRestart = true
+# after waiting for the monitor to wake up.
+EnableSunshineRestart = false
 
 # The command sunrise will run to wake up your monitor
 # Working on Debian Trixie with KDE:
 WakeMonitorCommand = "/usr/bin/qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.wakeup"
 # Working on GNOME Wayland with ydotool configured
-# NOTE: As this is a mouse-wiggle wake-up, you do not need
-# to enable EnableSunshineRestart
 # Ref: https://github.com/samurailink3/sunrise/issues/1#issue-3559225159
 # Ref: https://github.com/ReimuNotMoe/ydotool
 # WakeMonitorCommand = "/usr/bin/ydotool mousemove --absolute 355 0"
